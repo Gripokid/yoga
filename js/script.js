@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', () => {
 
     'use strict';
     let tab = document.querySelectorAll('.info-header-tab'),
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    info.addEventListener('click', function(event) {
+    info.addEventListener('click', (event) => {
         let target = event.target;
         if (target && target.classList.contains('info-header-tab')) {
             for(let i = 0; i < tab.length; i++) {
@@ -36,7 +36,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Timer
 
-    let deadline = '2019-05-19';
+    let deadline = '2019-05-24';
 
     function getTimeRemaining(endtime) {
         let t = Date.parse(endtime) - Date.parse(new Date()),
@@ -61,14 +61,9 @@ window.addEventListener('DOMContentLoaded', function() {
         
         function updateClock() {
             let t = getTimeRemaining(endtime);
-            // for (var i in t) {
-            //     if (t[i] < 10) {
-            //         t[i] = '0' + t[i];
-            //     }
-            // }
-            hours.textContent = ('00' + t.hours).substr(('00' + t.hours).length - 2);
-            minutes.textContent = ('00' + t.minutes).substr(('00' + t.minutes).length - 2);
-            seconds.textContent = ('00' + t.seconds).substr(('00' + t.seconds).length - 2);
+            hours.textContent = (`00${t.hours}`).substr((`00${t.hours}`).length - 2);
+            minutes.textContent = (`00${t.minutes}`).substr((`00${t.minutes}`).length - 2);
+            seconds.textContent = (`00${t.seconds}`).substr((`00${t.seconds}`).length - 2);
 
             if(t.total <= 0) {
                 clearInterval(timeInterval);
@@ -94,17 +89,17 @@ window.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'hidden';
     }
 
-    more.addEventListener('click', function() {
+    more.addEventListener('click', () => {
         openModel.call(this);
     });
     
-    descriptionBtn.forEach(function(item) {
-        item.addEventListener('click', function() {
-            openModel.call(this)
+    descriptionBtn.forEach((item) => {
+        item.addEventListener('click', () => {
+            openModel.call(this);
         });
     });
 
-    close.addEventListener('click', function() {
+    close.addEventListener('click', () => {
         overlay.style.display = 'none';
         this.classList.remove('more-splash');
         document.body.style.overflow = '';
