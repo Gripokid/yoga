@@ -83,73 +83,77 @@ window.addEventListener('DOMContentLoaded', () => {
         overlay = document.querySelector('.overlay'),
         close = document.querySelector('.popup-close');
 
-    function openModel() {
+    function openModal() {
         overlay.style.display = 'block';
-        this.classList.add('more-splash');
+        more.classList.add('more-splash');
         document.body.style.overflow = 'hidden';
     }
 
     more.addEventListener('click', () => {
-        openModel.call(this);
+        openModal.call(this);
     });
     
     descriptionBtn.forEach((item) => {
         item.addEventListener('click', () => {
-            openModel.call(this);
+            openModal.call(this);
         });
     });
 
     close.addEventListener('click', () => {
         overlay.style.display = 'none';
-        this.classList.remove('more-splash');
+        more.classList.remove('more-splash');
         document.body.style.overflow = '';
     });
 
     //Form
-
-    let  message = {
+    document.querySelector('#form > input:first-child').name = "email";
+    document.querySelector('#form > input:nth-child(2)').name = "phone";
+    console.log(document.querySelector('#form > input:nth-child(2)'))
+    
+    let message = {
         loading: 'Загрузка...',
-        suscess: 'Спасибо! Скоро мы  вами свяжемся!',
+        success: 'Спасибо! Скоро свяжемся с вами!',
         failure: 'Что-то пошло не так...'
     };
 
-    let form = document.querySelector('.main-form'),
-        input = form.getElementsByTagName('input'),
+    let form = document.getElementsByTagName('form'),
+        input = document.getElementsByTagName('input'),
         statusMessage = document.createElement('div');
 
-        statusMessage.classList.add('status');
+    statusMessage.classList.add('status');
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        form.appendChild(statusMessage);
+    for (let i = 0; i < form.length; i++) {
+        form[i].addEventListener('submit', function(event) {
+            event.preventDefault();
+            form[i].appendChild(statusMessage);
 
-        let request = new XMLHttpRequest();
-        request.open('POST', 'server.php');
-        request.setRequestHeader ('Content-Type', 'application/json; charset=utf-8');
+            let request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        let formData = new FormData(form);
+            let formData = new FormData(form[i]),
+                obj = {};
+            formData.forEach(function (value, key) {
+                obj[key] = value;
+            });
 
-        let obj = {};
-        formData.forEach(function(value, key) {
-            obj[key] = value;
-        });
-        let json = JSON.stringify(obj);
+            let json = JSON.stringify(obj);
 
-        request.send(json);
+            request.send(json);
 
-        request.addEventListener('readystatechange', function() {
-            if (request.readyState < 4) {
-                statusMessage.innerHTML = message.loading;
-            } else if(request.readyState ===4 && request.status == 200) {
-                statusMessage.innerHTML = mesage.success;
-            } else {
-                statusMessage.innerHTML = message.failure;
+            request.addEventListener('readystatechange', function() {
+                if (request.readyState < 4) {
+                    statusMessage.innerHTML = message.loading;
+                } else if (request.readyState === 4 && request.status == 200) {
+                    statusMessage.innerHTML = message.success;
+                } else {
+                    statusMessage.innerHTML = message.failure;
+                }
+            });
+
+            for (let i = 0; i < input.length; i++) {
+                input[i].value = '';
             }
         });
-
-        for (let i = 0; i < input.length; i++){
-            input[i].value = '';
-        }
-    });
-
+    }
 });
