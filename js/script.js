@@ -107,53 +107,160 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //Form
     document.querySelector('#form > input:first-child').name = "email";
-    document.querySelector('#form > input:nth-child(2)').name = "phone";
-    console.log(document.querySelector('#form > input:nth-child(2)'))
-    
+    document.querySelector('#form > input:nth-child(2)').name = "phone"; //именование input'ов   
+
     let message = {
         loading: 'Загрузка...',
-        success: 'Спасибо! Скоро свяжемся с вами!',
+        sucsess: 'Спасибо! Скоро свяжемся с вами!',
         failure: 'Что-то пошло не так...'
     };
 
-    let form = document.getElementsByTagName('form'),
-        input = document.getElementsByTagName('input'),
+    let form = document.querySelector('.main-form'),
+        formDown = document.getElementById('form'),
+        input = form.getElementsByTagName('input'),
         statusMessage = document.createElement('div');
+        statusMessage.classList.add('status');
 
-    statusMessage.classList.add('status');
+    function sendForm(elem) {
 
-    for (let i = 0; i < form.length; i++) {
-        form[i].addEventListener('submit', function(event) {
+        elem.addEventListener('submit', function(event) {
             event.preventDefault();
-            form[i].appendChild(statusMessage);
+            elem.appendChild(statusMessage);
 
-            let request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
-            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            let formData = new FormData(elem);
 
-            let formData = new FormData(form[i]),
-                obj = {};
+            let obj = {};
             formData.forEach(function (value, key) {
                 obj[key] = value;
             });
-
             let json = JSON.stringify(obj);
 
-            request.send(json);
+            function postData(json){
 
-            request.addEventListener('readystatechange', function() {
-                if (request.readyState < 4) {
-                    statusMessage.innerHTML = message.loading;
-                } else if (request.readyState === 4 && request.status == 200) {
-                    statusMessage.innerHTML = message.success;
-                } else {
-                    statusMessage.innerHTML = message.failure;
-                }
-            });
+                return new Promise(function(resolve,reject) {
+                    let request = new XMLHttpRequest();
 
-            for (let i = 0; i < input.length; i++) {
-                input[i].value = '';
+                    request.open('POST', 'server.php');
+
+                    request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+                    
+                    request.onreadystatechange = () => {
+                        if (request.readyState < 4) {
+                            resolve();
+                        } else if (request.readyState === 4 && request.status == 200) {
+                            resolve();
+                        } else {
+                            reject();
+                        }
+                    };
+                    request.send(json);
+                });
             }
+            function clearInput() {
+                for (let i = 0; i < input.length; i++) {
+                    input[i].value = '';
+                }
+            }
+            postData (json)
+                                .then(() => statusMessage.innerHTML  = message.loading)
+                                .then(() => statusMessage.innerHTML  = message.sucsess)
+                                .catch(() => statusMessage.innerHTML  = message.failure)
+                                .then(clearInput);
         });
     }
+    sendForm(form);
+    sendForm(formDown);
+
+    // Slider
+
+    let slideIndex = 1,
+        slides = document.querySelectorAll('.slider-item'),
+        prev = document.querySelector('.prev'),
+        next = document.querySelector('.next'),
+        dotsWrap = document.querySelector('.slider-dots'),
+        dots = document.querySelectorAll('.dot');
+    
+    showSlides(slideIndex);
+    
+    function showSlides(n) {
+
+        if (n > slides.length) {
+            slideIndex =1;
+        }
+        if(n < 1) {
+            slideIndex = slides.length;
+        }
+
+        slides.forEach((item) => item.style.display = 'none');
+
+        dots.forEach((item) => item.classList.remove('dot-active'));
+
+        slides[slideIndex - 1].style.display = 'block';
+        dots[slideIndex -1].classList.add('dot-active');
+    }
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    prev.addEventListener('click', function() {
+        plusSlides(-1);
+    });
+
+    next.addEventListener('click', function() {
+        plusSlides(1);
+    });
+
+    dotsWrap.addEventListener('click', function(event) {
+        for (let i = 0; i < dots.length + 1; i++) {
+            if (event.target.classList.contains('dot') && event.target == dots[i-1]) {
+                currentSlide(i);
+            }
+        }
+    });  
+    //calc  
+
+    let persons = document.querySelectorAll('.counter-block-input')[0],
+        restDays = document.querySelectorAll('.counter-block-input')[1],
+        place = document.getElementById('select'),
+        totalValue = document.getElementById('total'),
+        personsSum = 0,
+        daysSum = 0,
+        total = 0;
+
+        totalValue.innerHTML = 0;
+
+        persons.addEventListener('change', function() {
+            personsSum = +this.value;
+            total = (daysSum * personsSum) * 4000;
+
+            if(restDays.value == '') {
+                totalValue.innerHTML = 0;
+            } else {
+                totalValue.innerHTML = total;
+            }
+        });
+
+        restDays.addEventListener('change', function() {
+            daysSum = +this.value;
+            total = (daysSum * personsSum) * 4000;
+
+            if(persons.value == '') {
+                totalValue.innerHTML = 0;
+            } else {
+                totalValue.innerHTML = total;
+            }
+        });
+
+        place.addEventListener('change', function() {
+            if (restDays.value == '' || persons.value == '') {
+                totalValue.innerHTML = 0;
+            } else {
+                let a = total;
+                totalValue.innerHTML = a * this.options[this.selectedIndex].value;
+            }
+        })
 });
